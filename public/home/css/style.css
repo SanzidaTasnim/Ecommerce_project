@@ -920,7 +920,9 @@ a:focus {
   color: inherit;
 }
 /*# sourceMappingURL=style.css.map */
-
+p.small.text-muted {
+    margin-right: 15px;
+}
 .heading_container.heading_center h3 {
     position: relative;
     margin-bottom: 15px;
