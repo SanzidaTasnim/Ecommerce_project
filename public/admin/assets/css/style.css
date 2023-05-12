@@ -106,7 +106,9 @@
 /* === Import template variables === */
 /*-------------------------------------------------------------------*/
 /* === SCSS Compass Functions === */
-
+.table th, .jsgrid .jsgrid-table th, .table td, .jsgrid .jsgrid-table td{
+    white-space: normal !important;
+}
 @-moz-keyframes flash {
   0% {
     opacity: 1; }
