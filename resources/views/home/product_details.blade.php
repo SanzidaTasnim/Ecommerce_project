@@ -98,22 +98,30 @@
                               Usage: Window Decoration
                               Keywords: Ready Made Blackout Curtain
                            </div>
-                           <form action="" method="post" accept-charset="utf-8">
+
                               <ul class="spe_ul"></ul>
                               <div class="_p-qty-and-cart">
-                                 <div class="_p-add-cart">
-                                    <button class="btn-theme btn buy-btn" tabindex="0">
-                                    <i class="fa fa-shopping-cart"></i> Buy Now
-                                    </button>
-                                    <button class="btn-theme btn btn-success" tabindex="0">
-                                    <i class="fa fa-shopping-cart"></i> Add to Cart
-                                    </button>
-                                    <input type="hidden" name="pid" value="18" />
-                                    <input type="hidden" name="price" value="850" />
-                                    <input type="hidden" name="url" value="" />
+                                 <div class="_p-add-cart row">
+                                    <div class="col-md-6">
+                                        <button class="btn-theme btn buy-btn" tabindex="0">
+                                            <i class="fa fa-shopping-cart"></i> Buy Now
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <form action="{{url('/add_cart',$product->id)}}" method="post">
+                                            @csrf
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <input type="number" name="quantity" value="1" min="1">
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <input type="submit" value="Add To Cart" style="border-radius: 40px;" >
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
                                  </div>
                               </div>
-                           </form>
                         </div>
                      </div>
                   </div>
