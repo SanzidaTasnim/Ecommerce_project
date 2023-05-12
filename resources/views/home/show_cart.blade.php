@@ -78,15 +78,26 @@
                         <th>{{$totalPrice}}Tk</th>
                     </tr>
                 </table>
+                <div class="text-center">
+                    <h1 class="table table-secondary table-striped text-center" style="color: green" >Proceed To Checkout</h1>
+                    <a href="{{url('/cash_delivery')}}" class="btn btn-primary btn-lg">
+                        <i class="fa fa-shopping-cart"></i>
+                        Cash On Delivery
+                    </a>
+                    <a href="{{url('/stripe',$totalPrice)}}" class="btn btn-success btn-lg">
+                        <i class="fa fa-shopping-cart"></i>
+                        Pay Using Card
+                    </a>
+                </div>
             @else
                 <div class="text-center" style="height: 300px;">
                     <h1 style="margin-top: 253px;color: red;padding-bottom: 15px;">You Currently have no product added in the cart.</h1>
                     <a class="btn btn-primary" href="{{ url('/')}}">Back To Home</a>
                 </div>
             @endif
-
          </div>
-        <div class="cpy_" style="position: absolute;bottom: 0; width: 100%;">
+         @include('home.footer')
+        <div class="cpy_">
             <p class="mx-auto">© 2021 All Rights Reserved By <a href="https://html.design/">Free Html Templates</a><br>
 
                 Distributed By <a href="https://themewagon.com/" target="_blank">ThemeWagon</a>
