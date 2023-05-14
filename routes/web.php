@@ -14,7 +14,6 @@ use App\Http\Controllers\AdminController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
 route::get('/',[HomeController::class, 'index']);
 Route::middleware([
     'auth:sanctum',
