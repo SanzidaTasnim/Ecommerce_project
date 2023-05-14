@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\Comment;
+use App\Models\Reply;
 use Session;
 use Stripe;
 
@@ -16,7 +18,9 @@ class HomeController extends Controller
     public function index()
     {
         $product = Product::paginate(6);
-        return view('home.userpage',compact('product'));
+        $comment = Comment::all();
+        $reply = Reply::all();
+        return view('home.userpage',compact('product','comment','reply'));
     }
 
     public function redirect()
@@ -25,12 +29,28 @@ class HomeController extends Controller
 
         if($usertype == "1")
         {
-            return view('admin.home');
+            $product = order::all()->count();
+            $order = order::all()->count();
+            $user = user::all()->count();
+            $all_order = order::all();
+            $totalPrice = 0;
+            foreach($all_order as $item)
+            {
+                $totalPrice = $item->price + $totalPrice;
+            }
+            $total_delivery = order::where("delivery_status","=","Delivered")->get()->count();
+            $total_processing = order::where("delivery_status","=","Processing")->get()->count();
+            $success_payment = order::where("payment_status","=","Paid")->get()->count();
+            $due_payment = order::where("payment_status","=","Cash On delivery")->get()->count();
+
+            return view('admin.home', compact('product', 'order', 'user' , 'totalPrice', 'total_delivery', 'total_processing', 'success_payment', 'due_payment'));
         }
         else
         {
             $product = Product::paginate(6);
-            return view('home.userpage',compact('product'));
+            $comment = Comment::all();
+            $reply = Reply::all();
+            return view('home.userpage',compact('product','comment', 'reply'));
         }
     }
     public function product_details($id)
@@ -43,8 +63,51 @@ class HomeController extends Controller
         if(Auth::id())
         {
             $user = Auth::user();
+            $userId = $user->id;
             $product = Product::find($id);
+            $product_exist_id = cart::where('product_id','=',$id)->where('user_id','=',$userId)->get('id')->first();
 
+            if($product_exist_id)
+            {
+                $cart = cart::find($product_exist_id)->first();
+                $quantity=$cart->quantity;
+                $cart->quantity =$quantity + $request->quantity;
+                if($product->discount_price != null)
+                {
+                    $discounted_price = ($product->discount_price / 100) * $product->price;
+                    $cart->price = ($product->price - $discounted_price) * $cart->quantity;
+                }
+                else{
+                    $cart->price = $product->price * $cart->quantity;
+                }
+                $cart->save();
+                return redirect()->back()->with('message',"Product added to cart successfully");
+            }
+            else
+            {
+                $cart = new Cart();
+                $cart->name = $user->name;
+                $cart->email = $user->email;
+                $cart->phone = $user->phone;
+                $cart->address = $user->address;
+                $cart->user_id = $user->id;
+
+                $cart->product_title = $product->title;
+                if($product->discount_price != null)
+                {
+                    $discounted_price = ($product->discount_price / 100) * $product->price;
+                    $cart->price = ($product->price - $discounted_price) * $request->quantity;
+                }
+                else{
+                    $cart->price = $product->price * $request->quantity;
+                }
+                $cart->image = $product->image;
+                $cart->product_id = $product->id;
+
+                $cart->quantity = $request->quantity;
+                $cart->save();
+                return redirect()->back()->with('message',"Product added to cart successfully");
+            }
             $cart = new Cart();
 
             $cart->name = $user->name;
@@ -172,7 +235,88 @@ class HomeController extends Controller
         }
 
         Session::flash('success', 'Payment successful!');
-
         return back();
+    }
+
+    public function show_order()
+    {
+
+        if(Auth::id())
+        {
+            $user= Auth::user();
+            $userId = $user->id;
+            $order = order::where('user_id','=', $userId)->get();
+            return view('home.order',compact('order'));
+        }
+        else
+        {
+            return redirect('login');
+        }
+    }
+    public function cancel_order($id)
+    {
+        $order = order::find($id);
+        $order->delivery_status = "Cancelled";
+        $order->save();
+        return redirect()->back();
+    }
+    public function add_comment(Request $request)
+    {
+        if(Auth::id())
+        {
+            $comment = new comment();
+            $comment->name = Auth::user()->name;
+            $comment->comment = $request->comment;
+            $comment->user_id = Auth::user()->id;
+
+            $comment->save();
+
+            return redirect()->back();
+
+        }
+        else
+        {
+            return redirect('login');
+        }
+    }
+    public function add_reply(Request $request)
+    {
+        if(Auth::id())
+        {
+            $reply = new reply();
+            $reply->name = Auth::user()->name;
+            $reply->id = Auth::user()->id;
+            $reply->reply = $request->reply;
+            $reply->comment_id = $request->commentId;
+
+            $reply->save();
+            return redirect()->back();
+
+        }
+        else
+        {
+            return redirect('login');
+        }
+    }
+    public function search_product(Request $request)
+    {
+        $searchInput = $request->search;
+        $comment = comment::all();
+        $reply = reply::all();
+        $product = product::where('title','LIKE',"%$searchInput%")->orWhere('category','LIKE',"%$searchInput%")->paginate(10);
+
+        return view('home.userpage', compact('product','comment','reply'));
+    }
+    public function product_search(Request $request)
+    {
+        $searchInput = $request->search;
+        $product = product::where('title','LIKE',"%$searchInput%")->orWhere('category','LIKE',"%$searchInput%")->paginate(10);
+
+        return view('home.all_product', compact('product'));
+    }
+    public function product_page()
+    {
+        $product = product::paginate(10);
+        return view('home.all_product',compact('product'));
     }
 }

@@ -1,12 +1,8 @@
 <section class="product_section layout_padding">
     <div class="container">
        <div class="heading_container heading_center">
-          <h2>
-             Our <span>products</span>
-          </h2>
-
             <div class="mt-3">
-                <form action="{{url('search_product')}}" method="post">
+                <form action="{{url('product_search')}}" method="post">
                     @csrf
                     <div class="form-group m-auto" style="width: 500px; display: flex;padding: 20px;" >
                       <input type="text" name="search" class="form-control" id="search" placeholder="Search for product">
@@ -15,6 +11,16 @@
                     </div>
                   </form>
             </div>
+            </div>
+            <div class="row">
+                @if(session()->has('message'))
+                    <div class="alert alert-success w-100" >
+
+                        <button type="button" class="close" aria-hidden="true" data-dismiss="alert">x</button>
+                        {{session()->get('message')}}
+
+                    </div>
+            @endif
        <div class="row" style="width:100%;">
 
           @foreach($product as $item)
